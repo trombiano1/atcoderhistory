@@ -1,0 +1,9 @@
+onlinejudge/
+.vscode/
+.DS_Store
+a.out
+ans.txt
+ansraw.txt
+input.txt
+output.txt
+pname.txt
