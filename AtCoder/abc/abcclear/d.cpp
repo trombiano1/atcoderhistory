@@ -48,7 +48,7 @@ struct SegTree { // Lazy Seg Tree
     //           fxでINFが来たら相手になるように実装
 
     T fx(T a, T b){
-        return (a + b);
+        return (a + b) % MOD;
     }
 
     // 木の構築. 全てをdefにセット.
@@ -301,51 +301,7 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #endif
 #pragma endregion dump
 
-template <typename T>
-unsigned pos_mod(T x, T n) {
-    T res = x % n;
-    if (res < 0) {
-        res += n;
-    }
-    return res;
-}
-
 int main(void) {
-    ll n, k;
-    cin >> n >> k;
     
-    ll MOD = 998244353;
-
-    vector<pair<ll,ll>> a(k);
-    rep(i, k){
-        ll l, r;
-        cin >> l >> r;
-        a[i] = {l, r};
-    }
-    dump(a);
-    vector<ll> dp(n+1);
-    vector<ll> sum(k, 0);
-
-    dp[1] = 1;
-    
-    repi(i, 2, n+1){
-        rep(j, k){
-            if (i >= a[j].first){
-                sum[j] += dp[i-a[j].first];
-                sum[j] %= MOD;
-            }
-            if (i >= a[j].second + 1){
-                sum[j] -= dp[i-a[j].second-1];
-                sum[j] %= MOD;
-            }
-        }
-        rep(j, k){
-            dp[i] += sum[j];
-            dp[i] %= MOD;
-        }
-    }
-    dump(dp);
-
-    cout << pos_mod(dp[n], MOD) << endl;
     return 0;
 }

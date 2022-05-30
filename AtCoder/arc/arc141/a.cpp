@@ -301,51 +301,52 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #endif
 #pragma endregion dump
 
-template <typename T>
-unsigned pos_mod(T x, T n) {
-    T res = x % n;
-    if (res < 0) {
-        res += n;
+vector<ll> enum_divisors(ll N) {
+    vector<ll> res;
+    for (ll i = 1; i * i <= N; ++i) {
+        if (N % i == 0) {
+            res.push_back(i);
+            // 重複しないならば i の相方である N/i も push
+            if (N/i != i) res.push_back(N/i);
+        }
     }
+    // 小さい順に並び替える
+    sort(res.begin(), res.end());
     return res;
 }
 
 int main(void) {
-    ll n, k;
-    cin >> n >> k;
-    
-    ll MOD = 998244353;
+    ll t;
+    cin >> t;
+    rep(i, t){
+        string s;
+        cin >> s;
+        
+        ll len = s.size();
+        dump(len);
+        vector<ll> divs = enum_divisors(len);
 
-    vector<pair<ll,ll>> a(k);
-    rep(i, k){
-        ll l, r;
-        cin >> l >> r;
-        a[i] = {l, r};
-    }
-    dump(a);
-    vector<ll> dp(n+1);
-    vector<ll> sum(k, 0);
+        dump(divs);
 
-    dp[1] = 1;
-    
-    repi(i, 2, n+1){
-        rep(j, k){
-            if (i >= a[j].first){
-                sum[j] += dp[i-a[j].first];
-                sum[j] %= MOD;
-            }
-            if (i >= a[j].second + 1){
-                sum[j] -= dp[i-a[j].second-1];
-                sum[j] %= MOD;
+        vector<ll> cands;
+        string nines;
+        rep(i, len-1) nines += '9';
+        cands.push_back(stoll(nines));
+        for(size_t k = 1; k < divs.size(); k++){
+            string part = s.substr(0, len / divs[k]);
+            string new_s; 
+            rep(j, divs[k]) new_s += part;
+            if (stoll(new_s) <= stoll(s)) cands.push_back(stoll(new_s));
+            else {
+                part = to_string(stoll(part)-1);
+                string new_s; 
+                rep(j, divs[k]) new_s += part;
+                cands.push_back(stoll(new_s));
             }
         }
-        rep(j, k){
-            dp[i] += sum[j];
-            dp[i] %= MOD;
-        }
+        sort(all(cands));
+        dump(cands);
+        cout << cands[cands.size()-1] << endl;
     }
-    dump(dp);
-
-    cout << pos_mod(dp[n], MOD) << endl;
     return 0;
 }

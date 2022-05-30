@@ -273,48 +273,17 @@ struct SegTree { // Lazy Seg Tree
 };
 #pragma endregion funcs
 
-vector<vector<ll>> coords;
-
-ll dist(ll frm, ll t){
-    return abs(coords[frm][0]-coords[t][0]) + abs(coords[frm][1]-coords[t][1]) + max((ll)0, coords[t][2] - coords[frm][2]);
-}
-
 int main(void) {
-    ll n;
-    cin >> n;
-    coords.resize(n);
-    rep(i,n){
-        ll x, y, z;
-        cin >> x >> y >> z;
-        coords[i] = {x, y, z};
-    }
-
-    vector<vector<ll>> dp(1<<n);
-    rep(s, (1<<n)) dp[s].assign(n, INF);
-    
-    dp[(1<<0)][0] = 0;
-
-    for (ll bit = 1; bit < (1<<n); ++bit) {
-        ll s = 0;
-        for (ll i = 0; i < n; ++i) {
-            if (bit & (1<<i)) { // 列挙に i が含まれるか
-                s |= (1<<i);
-            }
-        }
-        rep(i, n){
-            ll ns = s | (1<<i);
-            ll mn = INF;
-            rep(j, n){
-                mn = min(mn, dp[s][j] + dist(j,i));
-            }
-            dp[ns][i] = mn;
-        }
-    }
-    rep(i, (1<<n)){
-        // dump(bitset<8>(i), dp[i]);
-    }
-    ll all = 0;
-    rep(i, n) all |= (1<<i);
-    cout << dp[all][0] << endl;
+    ll n, a, b;
+    cin >> n >> a >> b;
+    ll all_sum = n * (n+1) / 2;
+    ll a_num = n/a;
+    ll a_sum = a * a_num * (a_num + 1) / 2;
+    ll b_num = n/b;
+    ll b_sum = b * b_num * (b_num + 1) / 2;
+    ll lcm_num = n/lcm(a,b);
+    ll lcm_sum = lcm(a,b) * lcm_num * (lcm_num + 1) / 2;
+    dump(all_sum, a_sum, b_sum, lcm_sum);
+    cout << all_sum - a_sum - b_sum + lcm_sum << endl;
     return 0;
 }
