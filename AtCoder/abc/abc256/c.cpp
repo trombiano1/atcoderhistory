@@ -272,22 +272,6 @@ os << "}";
 return os;
 }
 
-// multiset
-template <typename T>
-ostream &operator<<(ostream &os, multiset<T> &set_var) {
-os << "{";
-repdump(itr, set_var) {
-    #define rep(i, n) for (ll i = 0; i < (ll)(n); i++)
-#define repi(i, a, b) for(ll i = (ll)(a); i < (ll)(b); i++)
-    os << *itr;
-    itr++;
-    if (itr != set_var.end()) os << ", ";
-    itr--;
-}
-os << "}";
-return os;
-}
-
 #define DUMPOUT cerr
 map<ll,ll> LINECOUNTER;
 
@@ -328,38 +312,32 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #pragma endregion dump
 
 int main(void) {
-    ll q;
-    cin >> q;
-    multiset<ll> st_m, st_p;
-    ll count = 0;
-    for (int i = 0; i < q; i++){
-        ll t, x;
-        cin >> t >> x;
-        if (t == 1){
-            st_m.insert(-x);
-            st_p.insert(x);
-            count++;
-        }
-        if (t == 2){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_m.lower_bound(-x), st_m.begin());
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << -*(next(st_m.lower_bound(-x), k-1)) << endl;
+    ll h1, h2, h3, w1, w2, w3;
+    cin >> h1 >> h2 >> h3 >> w1 >> w2 >> w3;
+    ll a1, a2, a3, b1, b2, b3;
+    ll res = 0;
+    for (int j = 0; j < h1-2; j++){
+        a1 = j + 1;
+        for(int k = 0; k < h1-1-a1; k++){
+            a2 = k + 1;
+            a3 = h1 - a1 - a2;
+            
+            for(int l = 0; l < h2 - 2; l++){
+                b1 = l + 1;
+                for(int m = 0; m < h2-1-b1; m++){
+                    b2 = m + 1;
+                    b3 = h2 - b1 - b2;
+                    // dump(a1, a2, a3, b1, b2, b3);
+
+                    if ((w1 - a1 - b1) + (w2-a2-b2) + (w3-a3-b3) == h3){
+                        if (w1-a1-b1 >= 1 && w2-a2-b2 >= 1 && (w3-a3-b3) >= 1) res++;
+                    }
+
+                }
             }
-        }
-        if(t == 3){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_p.begin(), st_p.lower_bound(x));
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << *(next(st_p.lower_bound(x), k-1)) << endl;
-            }
+
         }
     }
+    cout << res << endl;
     return 0;
 }

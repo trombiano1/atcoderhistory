@@ -274,6 +274,8 @@ struct SegTree { // Lazy Seg Tree
 #pragma endregion funcs
 
 int main(void) {
-    
+    ll n;
+    cin >> n;
+    cout << (char)n << endl;
     return 0;
 }

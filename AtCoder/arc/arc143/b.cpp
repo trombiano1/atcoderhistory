@@ -63,58 +63,44 @@ template<int mod> struct modular {
         if (x.val < 0) x.val += mod;
         return is;
     }
+    friend constexpr modular<mod> modpow(const modular<mod> &a, long long n) noexcept {
+        if (n == 0) return 1;
+        auto t = modpow(a, n / 2);
+        t = t * t;
+        if (n & 1) t = t * a;
+        return t;
+    }
 };
 
 const int mod = 998244353;
 using mint = modular<mod>;
 
-mint power(mint a, long long n) {
-    mint res = 1;
-    while (n > 0) {
-        if (n & 1) {
-            res *= a;
-        }
-        a *= a;
-        n >>= 1;
+vector<mint> fact(1, 1);
+vector<mint> finv(1, 1);
+
+mint C(int n, int k) {
+    if (n < k || k < 0) {
+        return mint(0);
     }
-    return res;
+    while ((int) fact.size() < n + 1) {
+        fact.emplace_back(fact.back() * (int) fact.size());
+        finv.emplace_back(mint(1) / fact.back());
+    }
+    return fact[n] * finv[k] * finv[n - k];
 }
 
 int main(void) {
-    ll n, m;
-    cin >> n >> m;
-    if (n > 65){
-        cout << 0 << endl;
-        return 0;
-    }
-    vector<vector<mint>> dp(n);
-    ll max_bit_n = log2((ll)m)+1;
-    for(int i = 0; i < n; i++) dp[i].assign(max_bit_n, 0);
-    dump(dp);
-    for(int i = 0; i < max_bit_n - 1; i++){
-        dp[0][i] = power(2, i);
-    }
-    dump(max_bit_n);
-    mint last_n = (mint)m - (power(2, max_bit_n-1) -1);
-    dp[0][max_bit_n - 1] = (mint)m - (power(2, max_bit_n-1) -1);
-    for(int i = 1; i < n; i++){
-        for(int j = i; j < max_bit_n; j++){
-            mint sum = 0;
-            for(int k = 0; k < j; k++) {
-                sum += dp[i-1][k];
-            }
-            dp[i][j] += sum * power(2, j);
-        }
-        mint sum = 0;
-        for(int k = 0; k < max_bit_n - 1; k++){
-            sum += dp[i-1][k];
-        }
-        dp[i][max_bit_n - 1] = sum * (last_n);
-    }
+    ll n;
+    cin >> n;
     mint res = 0;
-    for(int i = 0; i < max_bit_n; i++){
-        res += dp[n-1][i];
+    C(2*n*n, 0);
+
+    for(int a = n; a < n * n - n + 2; a++){
+        mint sml_cmb = C(a-1, n-1);
+        mint big_cmb = C(n*n-a, n-1);
+        res += sml_cmb * big_cmb * fact[n] * fact[n] * fact[(n-1)*(n-1)];
     }
-    cout << res << endl;
+
+    cout << fact[n * n] - res << endl;
     return 0;
 }

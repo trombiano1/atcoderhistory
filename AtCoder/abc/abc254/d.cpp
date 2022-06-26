@@ -272,22 +272,6 @@ os << "}";
 return os;
 }
 
-// multiset
-template <typename T>
-ostream &operator<<(ostream &os, multiset<T> &set_var) {
-os << "{";
-repdump(itr, set_var) {
-    #define rep(i, n) for (ll i = 0; i < (ll)(n); i++)
-#define repi(i, a, b) for(ll i = (ll)(a); i < (ll)(b); i++)
-    os << *itr;
-    itr++;
-    if (itr != set_var.end()) os << ", ";
-    itr--;
-}
-os << "}";
-return os;
-}
-
 #define DUMPOUT cerr
 map<ll,ll> LINECOUNTER;
 
@@ -327,39 +311,39 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #endif
 #pragma endregion dump
 
-int main(void) {
-    ll q;
-    cin >> q;
-    multiset<ll> st_m, st_p;
-    ll count = 0;
-    for (int i = 0; i < q; i++){
-        ll t, x;
-        cin >> t >> x;
-        if (t == 1){
-            st_m.insert(-x);
-            st_p.insert(x);
-            count++;
+vector<pair<long long, long long>> prime_factorize(long long N) {
+    vector<pair<long long, long long> > res;
+    for (long long a = 2; a * a <= N; ++a) {
+        if (N % a != 0) continue;
+        long long ex = 0; // 指数
+        // 割れる限り割り続ける
+        while (N % a == 0) {
+            ++ex;
+            N /= a;
         }
-        if (t == 2){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_m.lower_bound(-x), st_m.begin());
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << -*(next(st_m.lower_bound(-x), k-1)) << endl;
-            }
-        }
-        if(t == 3){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_p.begin(), st_p.lower_bound(x));
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << *(next(st_p.lower_bound(x), k-1)) << endl;
-            }
-        }
+        // その結果を push
+        res.push_back({a, ex});
     }
+    // 最後に残った数について
+    if (N != 1) res.push_back({N, 1});
+    return res;
+}
+
+int main(void) {
+    ll n;
+    cin >> n;
+    ll res = 0;
+    repi(i, 1, n+1){
+        vector<pair<ll, ll>> div = prime_factorize(i);
+        ll min = 1;
+        for(auto m : div){
+            if (m.second % 2 == 1){
+                min *= m.first;
+            }
+        }
+        dump(min);
+        res += (ll)sqrt(n/min);
+    }
+    cout << res << endl;
     return 0;
 }

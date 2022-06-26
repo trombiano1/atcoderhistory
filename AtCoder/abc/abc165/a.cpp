@@ -122,6 +122,12 @@ void dump_func(string vas, Head &&head, Tail &&... tail) {
 #pragma endregion dump
 
 int main(void) {
-    
+    ll K, A, B;
+    cin >> K >> A >> B;
+    for(int x = A; x < B + 1; x++) if (x % K == 0) {
+        cout << "OK" << endl;
+        return 0;
+    }
+    cout << "NG" << endl;
     return 0;
 }

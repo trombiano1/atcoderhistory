@@ -272,22 +272,6 @@ os << "}";
 return os;
 }
 
-// multiset
-template <typename T>
-ostream &operator<<(ostream &os, multiset<T> &set_var) {
-os << "{";
-repdump(itr, set_var) {
-    #define rep(i, n) for (ll i = 0; i < (ll)(n); i++)
-#define repi(i, a, b) for(ll i = (ll)(a); i < (ll)(b); i++)
-    os << *itr;
-    itr++;
-    if (itr != set_var.end()) os << ", ";
-    itr--;
-}
-os << "}";
-return os;
-}
-
 #define DUMPOUT cerr
 map<ll,ll> LINECOUNTER;
 
@@ -328,38 +312,14 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #pragma endregion dump
 
 int main(void) {
-    ll q;
-    cin >> q;
-    multiset<ll> st_m, st_p;
-    ll count = 0;
-    for (int i = 0; i < q; i++){
-        ll t, x;
-        cin >> t >> x;
-        if (t == 1){
-            st_m.insert(-x);
-            st_p.insert(x);
-            count++;
-        }
-        if (t == 2){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_m.lower_bound(-x), st_m.begin());
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << -*(next(st_m.lower_bound(-x), k-1)) << endl;
-            }
-        }
-        if(t == 3){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_p.begin(), st_p.lower_bound(x));
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << *(next(st_p.lower_bound(x), k-1)) << endl;
-            }
+    string s;
+    cin >> s;
+    for (size_t i = 0; i < 3; i++){
+        if (s[i] == '7'){
+            cout << "Yes" << endl;
+            return 0;
         }
     }
+    cout << "No" << endl;
     return 0;
 }

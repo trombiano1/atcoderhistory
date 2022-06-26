@@ -272,22 +272,6 @@ os << "}";
 return os;
 }
 
-// multiset
-template <typename T>
-ostream &operator<<(ostream &os, multiset<T> &set_var) {
-os << "{";
-repdump(itr, set_var) {
-    #define rep(i, n) for (ll i = 0; i < (ll)(n); i++)
-#define repi(i, a, b) for(ll i = (ll)(a); i < (ll)(b); i++)
-    os << *itr;
-    itr++;
-    if (itr != set_var.end()) os << ", ";
-    itr--;
-}
-os << "}";
-return os;
-}
-
 #define DUMPOUT cerr
 map<ll,ll> LINECOUNTER;
 
@@ -328,38 +312,36 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #pragma endregion dump
 
 int main(void) {
-    ll q;
-    cin >> q;
-    multiset<ll> st_m, st_p;
-    ll count = 0;
-    for (int i = 0; i < q; i++){
-        ll t, x;
-        cin >> t >> x;
-        if (t == 1){
-            st_m.insert(-x);
-            st_p.insert(x);
-            count++;
-        }
-        if (t == 2){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_m.lower_bound(-x), st_m.begin());
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << -*(next(st_m.lower_bound(-x), k-1)) << endl;
-            }
-        }
-        if(t == 3){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_p.begin(), st_p.lower_bound(x));
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << *(next(st_p.lower_bound(x), k-1)) << endl;
-            }
-        }
+    ll n, k;
+    cin >> n >> k;
+    vector<ll> a(k);
+    cin >> a;
+    vector<pair<ll, ll>> coord(n);
+    for (auto i = 0; i < k; i++){
+        a[i]--;
     }
+    for(int i = 0; i < n; i++){
+        ll x, y;
+        cin >> x >> y;
+        coord[i] = {x, y};
+    }
+    vector<ll> closest_dist(n, -INF);
+
+    for (int i = 0; i < n; i++){
+        ll mn = INF;
+        for (int j = 0; j < k; j++){
+            ll x_diff = coord[i].first-coord[a[j]].first;
+            ll y_diff = coord[i].second-coord[a[j]].second;
+            mn = min(x_diff*x_diff + y_diff * y_diff, mn);
+        }
+        if (mn != INF) closest_dist[i] = mn;
+    }
+    dump(closest_dist);
+    ll res = -INF;
+    for (int i = 0; i < n; i++){
+        if (closest_dist[i] > res) res = closest_dist[i];
+    }
+    dump(coord, closest_dist, res);
+    cout << setprecision(30) << sqrt(res) << endl;
     return 0;
 }

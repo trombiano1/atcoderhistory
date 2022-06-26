@@ -48,7 +48,7 @@ struct SegTree { // Lazy Seg Tree
     //           fxでINFが来たら相手になるように実装
 
     T fx(T a, T b){
-        return (a + b) % MOD;
+        return (a + b);
     }
 
     // 木の構築. 全てをdefにセット.
@@ -117,6 +117,16 @@ struct SegTree { // Lazy Seg Tree
         // dump(seg);
     }
 };
+
+template <typename T>
+unsigned pos_mod(T x, T n) {
+    T res = x % n;
+    if (res < 0) {
+        res += n;
+    }
+    return res;
+}
+
 #pragma endregion funcs
 #pragma region dump
 #define repdump(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
@@ -302,6 +312,34 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #pragma endregion dump
 
 int main(void) {
-    
+    ll n, q;
+    cin >> n >> q;
+    vector<ll> a(n);
+    vector<ll> a_r(n);
+    cin >> a;
+    sort(all(a));
+    a_r[0] = a[0];
+    for (auto i = 1; i < n; i++){
+        a_r[i] = a[i] + a_r[i-1];
+    }
+    dump(a, a_r);
+    for (auto i = 0; i < q; i++){
+        ll x;
+        cin >> x;
+        ll pos = lower_bound(all(a), x) - a.begin();
+        dump(pos);
+        ll res = 0;
+        if (pos == 0){
+            
+        } else {
+            res += pos * x - a_r[pos - 1];
+        }
+        if (pos == 0){
+            res = a_r[n-1] - n * x;
+        } else {
+            res += (a_r[n-1] - a_r[pos - 1]) - (n - pos) * x;
+        }
+        cout << res << endl;
+    }
     return 0;
 }

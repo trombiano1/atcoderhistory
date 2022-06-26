@@ -3,11 +3,133 @@ using namespace std;
 #define INF 1e18
 #define ll long long
 #define all(x) begin(x), end(x)
-
-#pragma region dump
-#define repdump(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
 #define rep(i, n) for (ll i = 0; i < (ll)(n); i++)
 #define repi(i, a, b) for(ll i = (ll)(a); i < (ll)(b); i++)
+
+#pragma region funcs
+struct UnionFind {
+    vector<int> par; // par[i]:iの親の番号 (例) par[3] = 2 : 3の親が2
+
+    UnionFind(int N) : par(N) { //最初は全てが根であるとして初期化
+        for(int i = 0; i < N; i++) par[i] = i;
+    }
+
+    int root(int x) { // データxが属する木の根を再帰で得る:root(x) = {xの木の根}
+        if (par[x] == x) return x;
+        return par[x] = root(par[x]);
+    }
+
+    void unite(int x, int y) { // xとyの木を併合
+        int rx = root(x); //xの根をrx
+        int ry = root(y); //yの根をry
+        if (rx == ry) return; //xとyの根が同じ(=同じ木にある)時はそのまま
+        par[rx] = ry; //xとyの根が同じでない(=同じ木にない)時:xの根rxをyの根ryにつける
+    }
+
+    bool same(int x, int y) { // 2つのデータx, yが属する木が同じならtrueを返す
+        int rx = root(x);
+        int ry = root(y);
+        return rx == ry;
+    }
+};
+
+template <typename T>
+struct SegTree { // Lazy Seg Tree
+    vector<T> dat, lazy;
+    ll n, size;
+    T def;
+
+    // defines function.
+    // make sure fx(x, def) = x (モノイド)
+    //   ex. min(INF, INF) = INF, min(x, INF) = x
+    //       max(-INF, INF) = INF, max(x, INF) = x
+    //       lcm(1, 1) = 1, lcm(1, a) = a
+    //       gcf(全ての数の倍数, a) = a
+    //           fxでINFが来たら相手になるように実装
+
+    T fx(T a, T b){
+        return (a + b);
+    }
+
+    // 木の構築. 全てをdefにセット.
+    SegTree(int N, T def_) : dat(2*pow(2,ceil(log2(N)))-1), lazy(2*pow(2,ceil(log2(N)))-1) {
+        n = pow(2,ceil(log2(N)));
+        size = 2 * n - 1;
+        def = def_;
+        for (size_t i = 0; i < dat.size(); i++){
+            dat[i] = def;
+            lazy[i] = def;
+        }
+    }
+
+    // [a, b)の区間をxにセット. 
+    void update(int a, int b, T x, int k, int l, int r){
+        eval(k);
+        if (a <= l && r <= b){
+            lazy[k] = x;
+            eval(k);
+        } else if (a < r && l < b){
+            update(a, b, x, k * 2 + 1, l, (l + r) / 2);
+            update(a, b, x, k * 2 + 2, (l + r) / 2, r);
+            dat[k] = fx(dat[k * 2 + 1], dat[k * 2 +  2]);
+        }
+    }
+    void update(int a, int b, T x) { update(a, b, x, 0, 0, n); }
+    void update(int a, T x) { update(a, a+1, x, 0, 0, n); }
+    
+    // 遅延評価用. 
+    void eval(int k) { // 配列のk番目を更新
+        if (lazy[k] == def) return; // 更新するものがなければ終了
+        if (k < n-1){ // 葉でなければ子に伝搬
+            lazy[k*2 + 1] = lazy[k];
+            lazy[k*2 + 2] = lazy[k];
+        }
+        // update self
+        dat[k] = lazy[k];
+        lazy[k] = def;
+    }
+
+    // [a, b)のfxを返す.
+    T query(int a, int b){ return query_sub(a, b, 0, 0, n); }
+    T query_sub(int a, int b, int k, int l, int r){
+        eval(k);
+        if(b <= l || r <= a) return def;
+        if(a <= l && r <= b) return dat[k];
+        T vl = query_sub(a, b, 2*k+1, l, (l+r)/2);
+        T vr = query_sub(a, b, 2*k+2, (l+r)/2, r);
+        return fx(vl,vr);
+    }
+
+    // fast set
+    void set(int i, T x) { dat[i + n - 1] = x; }
+    void build() {
+        for (int k = n - 2; k >= 0; k--){
+            dat[k] = fx(dat[2 * k + 1], dat[2 * k + 2]);
+        }
+    }
+
+    // print functions
+    void print(){
+        vector<T> seg;
+        for (auto i = size-n; i < size; i++){
+            seg.push_back(dat[i]);
+        }
+        // dump(seg);
+    }
+};
+
+template <typename T>
+unsigned pos_mod(T x, T n) {
+    T res = x % n;
+    if (res < 0) {
+        res += n;
+    }
+    return res;
+}
+
+#pragma endregion funcs
+#pragma region dump
+#define repdump(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
 // vector
 template <typename T>
 istream &operator>>(istream &is, vector<T> &vec) {
@@ -17,14 +139,44 @@ return is;
 // pair
 template <typename T, typename U>
 ostream &operator<<(ostream &os, const pair<T, U> &pair_var) {
-os << "(" << pair_var.first << ", " << pair_var.second << ")";
-return os;
+    os << "(" << pair_var.first << ", " << pair_var.second << ")";
+    return os;
 }
 // tuple
 struct Functor {
 template<typename T>
 void operator()(ostream &os, T& t) const { os << t; }
 };
+
+// SegTree
+template <typename T>
+ostream &operator<<(ostream &os, const SegTree<T> &tree) {
+    ll nspaces = 3;
+    os << endl << '\t';
+    ll space = tree.n;
+    ll linecount = 0;
+    rep(i, tree.size){
+        ll spacenum = space * nspaces - to_string(tree.dat[i]).length();
+        os << tree.dat[i];
+        rep(j, spacenum){
+            os << " ";
+        }
+        linecount += space;
+        if (linecount >= tree.n){
+            linecount = 0;
+            space /= 2;
+            os << endl << '\t';
+        }
+    }
+    os << "\033[0;30m";
+    rep(i, tree.n){
+        os << i;
+        cout << nspaces - to_string(i).length() << " ";
+        rep(j, nspaces - to_string(i).length()) os << " ";
+    }
+    os << "\033[0m";
+    return os;
+}
 
 template<std::size_t I = 0, typename FuncT, typename... Tp>
 inline typename std::enable_if<I == sizeof...(Tp), void>::type
@@ -158,122 +310,21 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #define dump(...)
 #endif
 #pragma endregion dump
-#pragma region funcs
-struct UnionFind {
-    vector<int> par; // par[i]:iの親の番号 (例) par[3] = 2 : 3の親が2
-
-    UnionFind(int N) : par(N) { //最初は全てが根であるとして初期化
-        for(int i = 0; i < N; i++) par[i] = i;
-    }
-
-    int root(int x) { // データxが属する木の根を再帰で得る:root(x) = {xの木の根}
-        if (par[x] == x) return x;
-        return par[x] = root(par[x]);
-    }
-
-    void unite(int x, int y) { // xとyの木を併合
-        int rx = root(x); //xの根をrx
-        int ry = root(y); //yの根をry
-        if (rx == ry) return; //xとyの根が同じ(=同じ木にある)時はそのまま
-        par[rx] = ry; //xとyの根が同じでない(=同じ木にない)時:xの根rxをyの根ryにつける
-    }
-
-    bool same(int x, int y) { // 2つのデータx, yが属する木が同じならtrueを返す
-        int rx = root(x);
-        int ry = root(y);
-        return rx == ry;
-    }
-};
-
-template <typename T>
-struct SegTree { // Lazy Seg Tree
-    vector<T> dat, lazy;
-    ll n, size;
-    T def;
-
-    // defines function.
-    // make sure fx(x, def) = x (モノイド)
-    //   ex. min(INF, INF) = INF, min(x, INF) = x
-    //       max(-INF, INF) = INF, max(x, INF) = x
-    //       lcm(1, 1) = 1, lcm(1, a) = a
-    //       gcf(全ての数の倍数, a) = a
-    //           fxでINFが来たら相手になるように実装
-    T fx(T a, T b){
-        return a + b;
-    }
-
-    // 木の構築. 全てをdefにセット.
-    SegTree(int N, T def_) : dat(2*pow(2,ceil(log2(N)))-1), lazy(2*pow(2,ceil(log2(N)))-1) {
-        n = pow(2,ceil(log2(N)));
-        size = 2 * n - 1;
-        def = def_;
-        for (size_t i = 0; i < dat.size(); i++){
-            dat[i] = def;
-            lazy[i] = def;
-        }
-    }
-
-    // [a, b)の区間をxにセット. 
-    void update(int a, int b, T x, int k, int l, int r){
-        eval(k);
-        if (a <= l && r <= b){
-            lazy[k] = x;
-            eval(k);
-        } else if (a < r && l < b){
-            update(a, b, x, k * 2 + 1, l, (l + r) / 2);
-            update(a, b, x, k * 2 + 2, (l + r) / 2, r);
-            dat[k] = fx(dat[k * 2 + 1], dat[k * 2 +  2]);
-        }
-    }
-    void update(int a, int b, T x) { update(a, b, x, 0, 0, n); }
-    void update(int a, T x) { update(a, a+1, x, 0, 0, n); }
-    
-    // 遅延評価用. 
-    void eval(int k) { // 配列のk番目を更新
-        if (lazy[k] == def) return; // 更新するものがなければ終了
-        if (k < n-1){ // 葉でなければ子に伝搬
-            lazy[k*2 + 1] = lazy[k];
-            lazy[k*2 + 2] = lazy[k];
-        }
-        // update self
-        dat[k] = lazy[k];
-        lazy[k] = def;
-    }
-
-    // [a, b)のfxを返す.
-    T query(int a, int b){ return query_sub(a, b, 0, 0, n); }
-    T query_sub(int a, int b, int k, int l, int r){
-        eval(k);
-        if(b <= l || r <= a) return def;
-        if(a <= l && r <= b) return dat[k];
-        T vl = query_sub(a, b, 2*k+1, l, (l+r)/2);
-        T vr = query_sub(a, b, 2*k+2, (l+r)/2, r);
-        return fx(vl,vr);
-    }
-
-    // print functions
-    void print(){
-        vector<T> seg;
-        for (auto i = size-n; i < size; i++){
-            seg.push_back(dat[i]);
-        }
-        dump(seg);
-    }
-    void print_all(){
-        ll c = 0;
-        while (pow(2,c) < size){
-            vector<T> seg;
-            for (auto i = 0; i < pow(2,c); i++){
-                seg.push_back(dat[i]);
-            }
-            dump(seg);
-            c++;
-        }
-    }
-};
-#pragma endregion funcs
 
 int main(void) {
-    
+    int n, k, m;
+	int a[100], b[100];
+	cin >> n >> k;
+	for (int i = 0; i < n; i++)cin >> a[i];
+	for (int i = 0; i < k; i++)cin >> b[i];
+	m = -1;
+	for (int i = 0; i < n; i++)m = max(m, a[i]);
+	for (int i = 0; i < k; i++) {
+		if (a[b[i] - 1] == m) {
+			cout << "Yes" << endl;
+			return 0;
+		}
+	}
+	cout << "No" << endl;
     return 0;
 }

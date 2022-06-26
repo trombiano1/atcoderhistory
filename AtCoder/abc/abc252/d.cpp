@@ -274,6 +274,29 @@ struct SegTree { // Lazy Seg Tree
 #pragma endregion funcs
 
 int main(void) {
-    
+    ll n;
+    cin >> n;
+    vector<ll> a(n);
+    cin >> a;
+    dump(a);
+    map<ll, ll> mp;
+    for(int i = 0; i < n; i++){
+        mp[a[i]]++;
+    }
+    ll sum = 0;
+    ll sq_sum = 0;
+    ll count = 0;
+    for(auto val:mp){
+        dump(val);
+        sum += val.second;
+        sq_sum += val.second * val.second;
+        count++;
+    }
+    ll res = 0;
+    for(auto val:mp){
+        ll a = val.second;
+        res += a * ((sum - a) * (sum - a) - (sq_sum - a * a));
+    }
+    cout << res / 6 << endl;
     return 0;
 }

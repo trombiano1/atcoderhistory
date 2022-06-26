@@ -121,6 +121,12 @@ void dump_func(string vas, Head &&head, Tail &&... tail) {
 #pragma endregion dump
 
 int main(void) {
-
+    string s;
+    cin >> s;
+    if (s == "ABC"){
+        cout << "ARC" << endl;
+    } else {
+        cout << "ABC" << endl;
+    }
     return 0;
 }

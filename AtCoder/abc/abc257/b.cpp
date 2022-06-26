@@ -272,22 +272,6 @@ os << "}";
 return os;
 }
 
-// multiset
-template <typename T>
-ostream &operator<<(ostream &os, multiset<T> &set_var) {
-os << "{";
-repdump(itr, set_var) {
-    #define rep(i, n) for (ll i = 0; i < (ll)(n); i++)
-#define repi(i, a, b) for(ll i = (ll)(a); i < (ll)(b); i++)
-    os << *itr;
-    itr++;
-    if (itr != set_var.end()) os << ", ";
-    itr--;
-}
-os << "}";
-return os;
-}
-
 #define DUMPOUT cerr
 map<ll,ll> LINECOUNTER;
 
@@ -328,38 +312,35 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #pragma endregion dump
 
 int main(void) {
-    ll q;
-    cin >> q;
-    multiset<ll> st_m, st_p;
-    ll count = 0;
-    for (int i = 0; i < q; i++){
-        ll t, x;
-        cin >> t >> x;
-        if (t == 1){
-            st_m.insert(-x);
-            st_p.insert(x);
-            count++;
-        }
-        if (t == 2){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_m.lower_bound(-x), st_m.begin());
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << -*(next(st_m.lower_bound(-x), k-1)) << endl;
+    ll n, k, q;
+    cin >> n >> k >> q;
+    vector<ll> a(k);
+    vector<ll> l(q);
+    cin >> a >> l;
+    dump(a, l);
+    vector<ll> mp(n, false);
+    for(int i = 0; i < k; i++) a[i]--;
+    for(int i = 0; i < k; i++) mp[a[i]] = true;
+    dump(mp);
+    for(int i = 0; i < q; i++){
+        ll l_ = l[i], c=0, pos=0;
+        for(int j = 0;;j++){
+            if (mp[j]) c++;
+            if (c == l_){
+                pos = j;
+                break;
             }
         }
-        if(t == 3){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_p.begin(), st_p.lower_bound(x));
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << *(next(st_p.lower_bound(x), k-1)) << endl;
-            }
-        }
+        dump(pos);
+        if (pos == n-1) continue;
+        if (mp[pos + 1]) continue;
+        mp[pos] = false;
+        mp[pos+1] = true;
     }
+    vector<ll> res;
+    for(int i = 0; i < n; i++){
+        if (mp[i]) cout << i+1 << " ";
+    }
+    cout << endl;
     return 0;
 }

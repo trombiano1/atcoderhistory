@@ -48,7 +48,7 @@ struct SegTree { // Lazy Seg Tree
     //           fxでINFが来たら相手になるように実装
 
     T fx(T a, T b){
-        return (a + b) % MOD;
+        return (a + b);
     }
 
     // 木の構築. 全てをdefにセット.
@@ -117,6 +117,16 @@ struct SegTree { // Lazy Seg Tree
         // dump(seg);
     }
 };
+
+template <typename T>
+unsigned pos_mod(T x, T n) {
+    T res = x % n;
+    if (res < 0) {
+        res += n;
+    }
+    return res;
+}
+
 #pragma endregion funcs
 #pragma region dump
 #define repdump(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
@@ -302,6 +312,57 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #pragma endregion dump
 
 int main(void) {
-    
+    ll n;
+    cin >> n;
+    vector<vector<ll>> xy(n);
+    for(int i = 0; i < n; i++){
+        ll x, y, p;
+        cin >> x >> y >> p;
+        xy[i]={x, y, p};
+    }
+    dump(xy);
+    vector<vector<pair<long double, int>>> G(n);
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            if (i == j) continue;
+            G[i].push_back({(long double)(abs(xy[i][0]-xy[j][0])+abs(xy[i][1]-xy[j][1]))/(long double)xy[i][2], j});
+        }
+    }
+    long double final_max = INF;
+    for(int i = 0; i < n; i++){
+        vector<long double> maxhop(n, INF);
+        priority_queue<pair<long double,ll>, vector<pair<long double,ll>>, greater<pair<long double,ll>>> pque;
+        ll start = i; // start point
+        maxhop[start] = i;
+        pque.push({0, start});
+
+        while (!pque.empty()) {
+            pair<ll,ll> p = pque.top();
+            pque.pop();
+            long double d = p.first; // maxhop (minなら確定)
+            ll v = p.second; // point name
+
+            if (maxhop[v] < d) continue; // 最短以外は無視 else vは確定
+
+            for (auto edge : G[v]) { // vに繋がってる点が更新できれば候補に入れる
+                long double c = edge.first;
+                ll nv = edge.second;
+                if (maxhop[nv] > max(maxhop[v], c)) {
+                    maxhop[nv] = max(maxhop[v], c);
+                    pque.push({maxhop[nv], nv});
+                }
+            }
+        }
+        dump(maxhop);
+
+        long double res_max = -INF;
+        for(int j = 0; j < n; j++){
+            res_max = max(res_max, maxhop[j]);
+        }
+        final_max = min(res_max, final_max);
+    }
+    dump(G);
+    dump(final_max);
+    cout << ceil(final_max) << endl;
     return 0;
 }

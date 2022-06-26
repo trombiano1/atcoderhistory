@@ -2,9 +2,12 @@
 using namespace std;
 #define INF 1e18
 #define ll long long
+#define ull unsigned long long
 #define all(x) begin(x), end(x)
 #define rep(i, n) for (ll i = 0; i < (ll)(n); i++)
 #define repi(i, a, b) for(ll i = (ll)(a); i < (ll)(b); i++)
+
+ll mod = 998244353;
 
 #pragma region funcs
 struct UnionFind {
@@ -272,22 +275,6 @@ os << "}";
 return os;
 }
 
-// multiset
-template <typename T>
-ostream &operator<<(ostream &os, multiset<T> &set_var) {
-os << "{";
-repdump(itr, set_var) {
-    #define rep(i, n) for (ll i = 0; i < (ll)(n); i++)
-#define repi(i, a, b) for(ll i = (ll)(a); i < (ll)(b); i++)
-    os << *itr;
-    itr++;
-    if (itr != set_var.end()) os << ", ";
-    itr--;
-}
-os << "}";
-return os;
-}
-
 #define DUMPOUT cerr
 map<ll,ll> LINECOUNTER;
 
@@ -327,39 +314,138 @@ dump_func(#__VA_ARGS__,__VA_ARGS__)
 #endif
 #pragma endregion dump
 
-int main(void) {
-    ll q;
-    cin >> q;
-    multiset<ll> st_m, st_p;
-    ll count = 0;
-    for (int i = 0; i < q; i++){
-        ll t, x;
-        cin >> t >> x;
-        if (t == 1){
-            st_m.insert(-x);
-            st_p.insert(x);
-            count++;
-        }
-        if (t == 2){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_m.lower_bound(-x), st_m.begin());
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << -*(next(st_m.lower_bound(-x), k-1)) << endl;
-            }
-        }
-        if(t == 3){
-            ll k;
-            cin >> k;
-            ll pos = distance(st_p.begin(), st_p.lower_bound(x));
-            if (pos + k > count){
-                cout << -1 << endl;
-            } else {
-                cout << *(next(st_p.lower_bound(x), k-1)) << endl;
-            }
-        }
+ll fact(ll n){
+    ll res = 1;
+    for(int i = 1; i <= n; i++){
+        res *= i;
+        res %= mod;
     }
+    return res;
+}
+
+// ll comb(ll n, ll r){
+//     if (r > n/2){
+//         r = n-r;
+//     }
+//     ll res = 1;
+//     rep(i, r){
+//         res *= n;
+//         n -= 1;
+//     }
+//     repi(i, 1, r+1){
+//         res /= i;
+//     }
+//     return res % mod;
+// }
+
+ll n2 = 501*501;
+vector<ll> fct(n2);
+
+
+long long pow_mod(long long x, long long n) {
+    long long ret = 1;
+    while (n > 0) {
+        if (n & 1) ret = ret * x % mod;  // n の最下位bitが1ならば(nが奇数ならば) x^(2^i) をかける
+        x = x * x % mod;
+        n >>= 1;  // n を1bit 左にずらす
+    }
+    return ret;
+}
+
+
+long long nCr_mod(long long n, long long r) {
+    long long x = 1, y = 1;
+
+    for (int i = 0; i < r; i++) {
+        x = x * (n - i) % mod ;
+        y = y * (i + 1) % mod;
+    }
+
+    return x * pow_mod(y, mod - 2) % mod;
+}
+
+unsigned long long power(unsigned long long x,
+                                  int y, int p){
+    unsigned long long res = 1; // Initialize result
+ 
+    x = x % p; // Update x if it is more than or
+    // equal to p
+ 
+    while (y > 0)
+    {
+     
+        // If y is odd, multiply x with result
+        if (y & 1)
+            res = (res * x) % p;
+ 
+        // y must be even now
+        y = y >> 1; // y = y/2
+        x = (x * x) % p;
+    }
+    return res;
+}
+ 
+// Returns n^(-1) mod p
+unsigned long long modInverse(unsigned long long n, 
+                                            int p)
+{
+    return power(n, p - 2, p);
+}
+ 
+// Returns nCr % p using Fermat's little
+// theorem.
+unsigned long long comb(unsigned long long n,
+                                 int r)
+{
+    ll p = mod;
+    // If n<r, then nCr should return 0
+    if (n < r)
+        return 0;
+    // Base case
+    if (r == 0)
+        return 1;
+ 
+    // Fill factorial array so that we
+    // can find all factorial of r, n
+    // and n-r
+
+    return (fct[n] * modInverse(fct[r], p) % p
+            * modInverse(fct[n - r], p) % p)
+           % p;
+}
+
+int main(void) {
+    ll n;
+    cin >> n;
+    ull res = 0;
+    fct[0] = 1;
+    for(int i = 1; i < n2; i++){
+        fct[i] = (fct[i - 1] * i) % mod;
+    }
+    // vector<ll> combslist(n2);
+    // for(int i = 1; i < n2; i++){
+    //     combslist[i] = comb(i, n-1);
+    // }
+    for(int a = n; a < n * n - n + 2; a++){
+        ull adder = 0;
+        // dump(a);
+        ull sml_cmb = nCr_mod(a-1, n-1) % mod;
+        ull big_cmb = nCr_mod(n*n-a, n-1) % mod;
+        // dump(sml_cmb, big_cmb);
+        adder = sml_cmb;
+        adder *= big_cmb;
+        adder %= mod;
+        adder *= fct[n];
+        adder %= mod;
+        adder *= fct[n];
+        adder %= mod;
+        adder *= fct[(n-1)*(n-1)];
+        adder %= mod;
+        res += adder;
+        res %= mod;
+        // dump(res);
+    }
+    ull print = (fct[n * n] - res)%mod;
+    cout << print << endl;
     return 0;
 }

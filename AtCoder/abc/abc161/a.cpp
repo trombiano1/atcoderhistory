@@ -122,6 +122,8 @@ void dump_func(string vas, Head &&head, Tail &&... tail) {
 #pragma endregion dump
 
 int main(void) {
-    
+    ll a, b, c;
+    cin >> a >> b >> c;
+    cout << c << " " << a << " " << b << endl;
     return 0;
 }
