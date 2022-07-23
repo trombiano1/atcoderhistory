@@ -70,68 +70,53 @@ struct modular {
 const int mod = 998244353;
 using mint = modular<mod>;
 
+// to use factorial values, initialize first with C(max, 0);
+vector<mint> fact(1, 1);
+vector<mint> finv(1, 1);
+
+mint C(int n, int k) {
+    if (n < k || k < 0) {
+        return mint(0);
+    }
+    while ((int) fact.size() < n + 1) {
+        fact.emplace_back(fact.back() * (int) fact.size());
+        finv.emplace_back(mint(1) / fact.back());
+    }
+    return fact[n] * finv[k] * finv[n - k];
+}
+
+
 int main(void) {
-    int n, m, k;
-    cin >> n >> m >> k;
-    vector<int> a(m);
-    for(int i = 0; i < m; i++){
-        cin >> a[i];
-        a[i]--;
+    string s;
+    cin >> s;
+    dump(s);
+    ll n = (ll)s.size();
+    C(5000, 0);
+    vector<ll> char_count(26);
+    for(int i = 0; i < (int)s.size(); i++){
+        char_count[s[i]-'a']++;
     }
-    vector<vector<pair<int, int>>> G(n);
-    for(int i = 0; i < n-1; i++){
-        int u, v;
-        cin >> u >> v;
-        u--; v--;
-        G[u].push_back({v, i});
-        G[v].push_back({u, i});
+    dump(char_count);
+    vector<vector<mint>> dp(27);
+    for(int i = 0; i < 27; i++){
+        dp[i].resize(n+1);
     }
-    vector<int> pass_count(n-1);
-    for(int i = 0; i < m-1; i++){
-        // a[i] から a[i+1]でpass_countを++
-        vector<ll> dist(n, -1);
-        queue<pair<int, vector<int>>> que;
-        
-        dist[a[i]] = 0;
-        que.push({a[i], {}});
-        vector<int> s_path;
-        while (!que.empty()) {
-            pair<int, vector<int>> v = que.front();
-            que.pop();
-            if (v.first == a[i+1]){
-                s_path = v.second;
-                break;
+    dp[0][0] = 1;
+    dump(dp);
+    for(int i = 0; i < 26; i++){
+        for(int j = 0; j <= n; j++){
+            mint res = 0;
+            for(int k = 0; k <= j && k <= char_count[i]; k++){
+                res += dp[i][j-k] * C(j, k);
             }
-        
-            for (pair<int, int> nv : G[v.first]) {
-                if (dist[nv.first] != -1) continue;
-        
-                dist[nv.first] = dist[v.first] + 1;
-                vector<int> path = v.second;
-                path.push_back(nv.second);
-                que.push({nv.first, path});
-            }
-        }
-        for(int j = 0; j < (ll)s_path.size(); j++){
-            pass_count[s_path[j]]++;
+            dp[i+1][j] = res;
         }
     }
-    vector<mint> dp(2*m*n);
-    dp[m*n]=1;
-    for(int i = 0; i < n-1; i++){
-        vector<mint> dp_(2*m*n);
-        for(int j = 0; j < 2*m*n; j++){
-            if (dp[j] != 0){
-                dp_[j + pass_count[i]] += dp[j];
-                dp_[j - pass_count[i]] += dp[j];
-            }
-        }
-        swap(dp, dp_);
+    mint result = 0;
+    for(int i = 1; i <= n; i++){
+        result += dp[26][i];
     }
-    if (k < -m*n || k > m*n - 1){
-        cout << 0 << endl; 
-        return 0;
-    }
-    cout << dp[k + m*n] << endl;
+    dump(dp);
+    cout << result << endl;
     return 0;
 }

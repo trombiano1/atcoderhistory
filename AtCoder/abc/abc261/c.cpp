@@ -14,15 +14,16 @@ using namespace std;
 int main(void) {
     int n;
     cin >> n;
-    vector<ll> x(n);
-    ll all = 0;
+    vector<string> s(n);
+    map<string, int> count;
     for(int i = 0; i < n; i++){
-        cin >> x[i];
-        all ^= x[i];
+        cin >> s[i];
+        if (count[s[i]] == 0){
+            cout << s[i] << endl;
+        } else {
+            cout << s[i] << '(' << count[s[i]] << ')' << endl;
+        }
+        count[s[i]]++;
     }
-    for(int i = 0; i < n; i++){
-        cout << (all ^ x[i]) << " ";
-    }
-    cout << endl;
     return 0;
 }

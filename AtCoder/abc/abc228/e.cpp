@@ -67,71 +67,42 @@ struct modular {
     }
 };
 
-const int mod = 998244353;
-using mint = modular<mod>;
+const int mod1 = 998244353;
+using mint1 = modular<mod1>;
+const int mod2 = 998244352;
+using mint2 = modular<mod2>;
+
+mint1 power1(mint1 a, ll n) {
+    mint1 res = 1;
+    while (n > 0) {
+        if (n & 1) {
+            res *= a;
+        }
+        a *= a;
+        n >>= 1;
+    }
+    return res;
+}
+
+mint2 power2(mint2 a, ll n) {
+    mint2 res = 1;
+    while (n > 0) {
+        if (n & 1) {
+            res *= a;
+        }
+        a *= a;
+        n >>= 1;
+    }
+    return res;
+}
 
 int main(void) {
-    int n, m, k;
-    cin >> n >> m >> k;
-    vector<int> a(m);
-    for(int i = 0; i < m; i++){
-        cin >> a[i];
-        a[i]--;
-    }
-    vector<vector<pair<int, int>>> G(n);
-    for(int i = 0; i < n-1; i++){
-        int u, v;
-        cin >> u >> v;
-        u--; v--;
-        G[u].push_back({v, i});
-        G[v].push_back({u, i});
-    }
-    vector<int> pass_count(n-1);
-    for(int i = 0; i < m-1; i++){
-        // a[i] から a[i+1]でpass_countを++
-        vector<ll> dist(n, -1);
-        queue<pair<int, vector<int>>> que;
-        
-        dist[a[i]] = 0;
-        que.push({a[i], {}});
-        vector<int> s_path;
-        while (!que.empty()) {
-            pair<int, vector<int>> v = que.front();
-            que.pop();
-            if (v.first == a[i+1]){
-                s_path = v.second;
-                break;
-            }
-        
-            for (pair<int, int> nv : G[v.first]) {
-                if (dist[nv.first] != -1) continue;
-        
-                dist[nv.first] = dist[v.first] + 1;
-                vector<int> path = v.second;
-                path.push_back(nv.second);
-                que.push({nv.first, path});
-            }
-        }
-        for(int j = 0; j < (ll)s_path.size(); j++){
-            pass_count[s_path[j]]++;
-        }
-    }
-    vector<mint> dp(2*m*n);
-    dp[m*n]=1;
-    for(int i = 0; i < n-1; i++){
-        vector<mint> dp_(2*m*n);
-        for(int j = 0; j < 2*m*n; j++){
-            if (dp[j] != 0){
-                dp_[j + pass_count[i]] += dp[j];
-                dp_[j - pass_count[i]] += dp[j];
-            }
-        }
-        swap(dp, dp_);
-    }
-    if (k < -m*n || k > m*n - 1){
-        cout << 0 << endl; 
+    ll n, k, m;
+    cin >> n >> k >> m;
+    if (m % 998244353 == 0){
+        cout << 0 << endl;
         return 0;
     }
-    cout << dp[k + m*n] << endl;
+    cout << power1(m, power2(k, n).val) << endl;
     return 0;
 }

@@ -12,30 +12,6 @@ using namespace std;
 #endif
 
 template <typename T>
-vector<T> compress(vector<T> &X) {
-    // ソートした結果を vals に
-    vector<T> vals = X;
-    sort(vals.begin(), vals.end());
-    // 隣り合う重複を削除(unique), 末端のゴミを削除(erase)
-    vals.erase(unique(vals.begin(), vals.end()), vals.end());
-    // 各要素ごとに二分探索で位置を求める
-    for (int i = 0; i < (int)X.size(); i++) {
-        X[i] = lower_bound(vals.begin(), vals.end(), X[i]) - vals.begin();
-    }
-    return vals;
-}
-
-/* ex.
-vector<ll> a = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3}
-vector<ll> a_key;
-
-a_key = compress(a);
-
-a: {2, 0, 3, 0, 4, 6, 1, 5, 4, 2} // aが圧縮された値
-a_key: {1, 2, 3, 4, 5, 6, 9} // 元の数字を取り出したい時用(a_key[a[i]])
-*/
-
-template <typename T>
 struct SegTree { // Lazy Seg Tree
     vector<T> dat, lazy;
     ll n, size;
@@ -126,7 +102,7 @@ ostream &operator<<(ostream &os, const SegTree<T> &tree) {
     ll space = tree.n;
     ll linecount = 0;
     for(int i = 0; i < tree.size; i++){
-        ll spacenum = space * nspaces - to_string(tree.dat[i].val).length();
+        ll spacenum = space * nspaces - to_string(tree.dat[i]).length();
         os << tree.dat[i];
         for(int j = 0; j < spacenum; j++){
             os << " ";
@@ -141,100 +117,55 @@ ostream &operator<<(ostream &os, const SegTree<T> &tree) {
     os << "\033[0;30m";
     for(int i = 0; i < tree.n; i++){
         os << i;
+        cout << nspaces - to_string(i).length() << " ";
         for(unsigned long long j = 0; j < nspaces - to_string(i).length(); j++) os << " ";
     }
     os << "\033[0m";
     return os;
 }
 
-template<int mod>
-struct modular {
-    long long val;
-    constexpr modular(long long v = 0) noexcept : val(v % mod) {
-        if (val < 0) val += mod;
+template <typename T>
+vector<T> compress(vector<T> &X) {
+    // ソートした結果を vals に
+    vector<T> vals = X;
+    sort(vals.begin(), vals.end());
+    // 隣り合う重複を削除(unique), 末端のゴミを削除(erase)
+    vals.erase(unique(vals.begin(), vals.end()), vals.end());
+    // 各要素ごとに二分探索で位置を求める
+    for (int i = 0; i < (int)X.size(); i++) {
+        X[i] = lower_bound(vals.begin(), vals.end(), X[i]) - vals.begin();
     }
-    constexpr int getmod() { return mod; }
-    constexpr modular operator - () const noexcept {
-        return val ? mod - val : 0;
-    }
-    constexpr modular operator + (const modular& r) const noexcept { return modular(*this) += r; }
-    constexpr modular operator - (const modular& r) const noexcept { return modular(*this) -= r; }
-    constexpr modular operator * (const modular& r) const noexcept { return modular(*this) *= r; }
-    constexpr modular operator / (const modular& r) const noexcept { return modular(*this) /= r; }
-    constexpr modular& operator += (const modular& r) noexcept {
-        val += r.val;
-        if (val >= mod) val -= mod;
-        return *this;
-    }
-    constexpr modular& operator -= (const modular& r) noexcept {
-        val -= r.val;
-        if (val < 0) val += mod;
-        return *this;
-    }
-    constexpr modular& operator *= (const modular& r) noexcept {
-        val = val * r.val % mod;
-        return *this;
-    }
-    constexpr modular& operator /= (const modular& r) noexcept {
-        long long a = r.val, b = mod, u = 1, v = 0;
-        while (b) {
-            long long t = a / b;
-            a -= t * b; swap(a, b);
-            u -= t * v; swap(u, v);
-        }
-        val = val * u % mod;
-        if (val < 0) val += mod;
-        return *this;
-    }
-    constexpr bool operator == (const modular& r) const noexcept {
-        return this->val == r.val;
-    }
-    constexpr bool operator != (const modular& r) const noexcept {
-        return this->val != r.val;
-    }
-    friend constexpr ostream& operator << (ostream &os, const modular<mod>& x) noexcept {
-        return os << x.val;
-    }
-    friend constexpr istream& operator >> (istream &is, modular<mod>& x) noexcept {
-        is >> x.val;
-        x.val %= mod;
-        if (x.val < 0) x.val += mod;
-        return is;
-    }
-};
-
-const int mod = 998244353;
-using mint = modular<mod>;
-
-mint power(mint a, ll n) {
-    mint res = 1;
-    while (n > 0) {
-        if (n & 1) {
-            res *= a;
-        }
-        a *= a;
-        n >>= 1;
-    }
-    return res;
+    return vals;
 }
 
 int main(void) {
     int n;
     cin >> n;
     vector<ll> a(n);
+    vector<ll> b(n);
     for(int i = 0; i < n; i++){
         cin >> a[i];
     }
-    vector<ll> keys = compress(a);
-    SegTree<mint> tree(keys.size(), 0);
-    mint res = 0;
-    for(int i = n-1; i >= 0; i--){
-        dump(tree.query(a[i], a[i]+1));
-        res += tree.query(a[i], keys.size()) / power(2, i+1);
-        tree.update(a[i], tree.query(a[i], a[i]+1) + power(2, i));
-        dump(tree);
+    for(int i = 0; i < n; i++){
+        cin >> b[i];
+    }
+    compress(a);
+    map<ll, vector<ll>, greater<>> mp;
+    for(int i = 0; i < n; i++){
+        mp[b[i]].push_back(a[i]);
+    }
+
+    SegTree<ll> tree(a.size(), 0);
+    ll res = 0;
+    for(auto i : mp){
+        sort(all(i.second));
+        for(auto j : i.second){
+            tree.update(j, tree.query(j, j+1)+1);
+        }
+        for(auto j : i.second){
+            res +=  tree.query(0, j+1);
+        }
     }
     cout << res << endl;
-    dump(tree);
     return 0;
 }

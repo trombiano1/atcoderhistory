@@ -1,88 +1,42 @@
 #include <bits/stdc++.h>
-
 using namespace std;
-
-#define INF 1e18
 #define ll long long
-#define repi(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
+#define INF 1e9
+#define LINF 100000000000000000LL
+#define all(x) begin(x), end(x)
 
-#pragma region dump
-// vector
-template <typename T>
-istream &operator>>(istream &is, vector<T> &vec) {
-    for (T &x : vec) is >> x;
-    return is;
-}
-// pair
-template <typename T, typename U>
-ostream &operator<<(ostream &os, pair<T, U> &pair_var) {
-    os << "(" << pair_var.first << ", " << pair_var.second << ")";
-    return os;
-}
-// vector
-template <typename T>
-ostream &operator<<(ostream &os, const vector<T> &vec) {
-    os << "{";
-    for (int i = 0; i < (int)vec.size(); i++) {
-        os << vec[i] << (i + 1 == (int)vec.size() ? "" : ", ");
-    }
-    os << "}";
-    return os;
-}
-// map
-template <typename T, typename U>
-ostream &operator<<(ostream &os, map<T, U> &map_var) {
-    os << "{";
-    repi(itr, map_var) {
-        os << *itr;
-        itr++;
-        if (itr != map_var.end()) os << ", ";
-        itr--;
-    }
-    os << "}";
-    return os;
-}
-// set
-template <typename T>
-ostream &operator<<(ostream &os, set<T> &set_var) {
-    os << "{";
-    repi(itr, set_var) {
-        os << *itr;
-        itr++;
-        if (itr != set_var.end()) os << ", ";
-        itr--;
-    }
-    os << "}";
-    return os;
-}
-
-#define DUMPOUT cerr
-
-void dump_func() {
-    DUMPOUT << endl;
-}
-template <class Head, class... Tail>
-void dump_func(Head &&head, Tail &&... tail) {
-    DUMPOUT << head;
-    if (sizeof...(Tail) > 0) {
-        DUMPOUT << ", ";
-    }
-    dump_func(std::move(tail)...);
-}
 #ifdef DEBUG_
-#define DEB
-#define dump(...)                                                              \
-    DUMPOUT << "  \033[1m" << string(#__VA_ARGS__) << "\033[0m: "                            \
-            << "\033[0;90m[" << to_string(__LINE__) << ":" << __FUNCTION__ << "]\033[0m"        \
-            << endl                                                            \
-            << "    " ,                                                         \
-        dump_func(__VA_ARGS__)
+#include "../../onlinejudge/dump.cpp"
 #else
-#define DEB if (false)
 #define dump(...)
 #endif
-#pragma endregion dump
 
 int main(void) {
+    int n;
+    cin >> n;
+    vector<ll> x(n);
+    vector<ll> y(n);
+    for(int i = 0; i < n; i++){
+        cin >> x[i];
+        cin >> y[i];
+    }
+    ll res = 0;
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            for(int k = 0; k < n; k++){
+                if (i == j) continue;
+                if (j == k) continue;
+                if (i == k) continue;
+                
+                // i = 1 j = 2
+                ll y1 = y[i], y2 = y[j], x1 = x[i], x2 = x[j];
+                if ((y[k] - y1) * (x2-x1) != (y2-y1) * (x[k]-x1)){
+                    res++;
+                }
+                
+            }
+        }
+    }
+    cout << res / 6 << endl;
     return 0;
 }

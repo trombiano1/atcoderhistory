@@ -12,12 +12,17 @@ using namespace std;
 #endif
 
 int main(void) {
-    ll a;
-    double b;
+    int a, b;
     cin >> a >> b;
-    double c = b * 100;
-    cout << a*c << endl;
-    dump(a, b, c);
-    cout << (ll)((a * c)/100) << endl;
+    a--; b--;
+    vector<int> count(3);
+    count[a]++;
+    count[b]++;
+    for(int i = 0; i < 3; i++){
+        if (count[i] == 0){
+            cout << i+1 << endl;
+        }
+    }
+    
     return 0;
 }

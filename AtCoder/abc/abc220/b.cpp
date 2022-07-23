@@ -59,6 +59,6 @@ int main(void) {
     string a, b;
     cin >> a >> b;
     NAry nary(k);
-    dump(nary.n2d(a));
+    cout << nary.n2d(a) * nary.n2d(b) << endl;
     return 0;
 }

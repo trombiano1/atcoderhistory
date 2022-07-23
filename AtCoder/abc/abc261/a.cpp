@@ -12,12 +12,10 @@ using namespace std;
 #endif
 
 int main(void) {
-    ll a;
-    double b;
-    cin >> a >> b;
-    double c = b * 100;
-    cout << a*c << endl;
-    dump(a, b, c);
-    cout << (ll)((a * c)/100) << endl;
+    int l1, r1, l2, r2;
+    cin >> l1 >> r1 >> l2 >> r2;
+    int res = min(r1, r2) - max(l1, l2);
+    if (res < 0) res = 0;
+    cout << res << endl;
     return 0;
 }

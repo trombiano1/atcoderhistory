@@ -14,15 +14,24 @@ using namespace std;
 int main(void) {
     int n;
     cin >> n;
-    vector<ll> x(n);
-    ll all = 0;
+    vector<ll> a(n);
+    ll a_sum = 0;
     for(int i = 0; i < n; i++){
-        cin >> x[i];
-        all ^= x[i];
+        cin >> a[i];
+        a_sum += a[i];
     }
+    ll x;
+    cin >> x;
+    dump(x/a_sum);
+    ll res = 0;
+    res += x/a_sum * n;
+    x -= (x/a_sum)*a_sum;
     for(int i = 0; i < n; i++){
-        cout << (all ^ x[i]) << " ";
+        x -= a[i];
+        if (x < 0){
+            cout << res + i + 1 << endl;
+            return 0;
+        }
     }
-    cout << endl;
     return 0;
 }

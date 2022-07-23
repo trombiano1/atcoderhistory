@@ -11,13 +11,12 @@ using namespace std;
 #define dump(...)
 #endif
 
+#define PI 3.14159265358979
+
 int main(void) {
-    ll a;
-    double b;
-    cin >> a >> b;
-    double c = b * 100;
-    cout << a*c << endl;
-    dump(a, b, c);
-    cout << (ll)((a * c)/100) << endl;
+    double a, b, d;
+    cin >> a >> b >> d;
+    cout << setprecision(20) << a * cos(d*PI/180.0) - b * sin(d*PI/180.0) << " " << 
+    b * cos(d*PI/180.0) + a * sin(d*PI/180.0) << endl;
     return 0;
 }
