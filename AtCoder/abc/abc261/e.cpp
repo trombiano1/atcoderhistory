@@ -8,16 +8,8 @@ using namespace std;
 #ifdef DEBUG_
 #include "../../onlinejudge/dump.cpp"
 #else
-#define dump(...)
+#define dump(...)2
 #endif
-
-bool nthdigit(int x, int n)
-{
-    while (n--) {
-        x /= 2;
-    }
-    return (x % 2);
-}
 
 int main(void) {
     int n, c;
@@ -28,70 +20,35 @@ int main(void) {
         cin >> t >> a;
         ops[i] = {t, a};
     }
-    vector<vector<bool>> res0(30);
-    for(int i = 0; i < 30; i++){
-        res0[i].resize(n+1);
-        res0[i][0] = 0;
-        for(int j = 1; j < n+1; j++){
+    vector<vector<int>> b(n+1, vector<int>(2));
+    b[0][1] = (1<<30) - 1;
+    for(int i = 1; i < n+1; i++){
+        for(int j = 0; j < 2; j++){
             int t; ll a;
-            t = ops[j-1].first;
-            a = ops[j-1].second;
+            t = ops[i-1].first;
+            a = ops[i-1].second;
 
             if (t == 1){
-                res0[i][j] = res0[i][j-1] & (a & ( 1 <<  i)) >> i;
+                b[i][j] = b[i-1][j] & a;
             }
             if (t == 2){
-                res0[i][j] = res0[i][j-1] | (a & ( 1 <<  i)) >> i;
+                b[i][j] = b[i-1][j] | a;
             }
             if (t == 3){
-                res0[i][j] = res0[i][j-1] ^ (a & ( 1 <<  i)) >> i;
+                b[i][j] = b[i-1][j] ^ a;
             }
         }
     }
 
-    vector<vector<bool>> res1(30);
-    for(int i = 0; i < 30; i++){
-        res1[i].resize(n+1);
-        res1[i][0] = 1;
-        for(int j = 1; j < n+1; j++){
-            int t; ll a;
-            t = ops[j-1].first;
-            a = ops[j-1].second;
-
-            if (t == 1){
-                res1[i][j] = res1[i][j-1] & (a & ( 1 <<  i)) >> i;
-            }
-            if (t == 2){
-                res1[i][j] = res1[i][j-1] | (a & ( 1 <<  i)) >> i;
-            }
-            if (t == 3){
-                res1[i][j] = res1[i][j-1] ^ (a & ( 1 <<  i)) >> i;
-                dump(i, j, res1[i][j-1], (a & ( 1 <<  i)) >> i, res1[i][j]);
-            }
-        }
-    }
-    dump(res0, res1);
-    vector<ll> x(30);
-    for(int i = 0; i < 30; i++){
-        x[i] = nthdigit(c, i);
-    }
-    dump(x);
     for(int i = 1; i <= n; i++){
+        int new_c = 0;
         for(int j = 0; j < 30; j++){
-            if (x[j] == 0){
-                x[j] = res0[j][i];
-            } else {
-                x[j] = res1[j][i];
-            }
+            int k = !!(b[i][(c & (1<<j)) >> j] & (1 << j));
+            new_c += k * (1<<j);
         }
-        dump(x);
-        ll res = 0;
-        for(int j = 29; j >= 0; j--){
-            res *= 2;
-            res += x[j];
-
-        }
-        cout << res << endl;
+        c = new_c;
+        cout << c << endl;
     }
     return 0;
 }
+
