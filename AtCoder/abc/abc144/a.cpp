@@ -10,17 +10,16 @@ using namespace std;
 int main(void) {
     ios::sync_with_stdio(false);
     cin.tie(0);
-    int n;
-    cin >> n;
-    vector<int> a(n);
-    for (int i = 0; i < n; i++){
-        int p;
-        cin >> p;
-        a[p-1] = i+1;
+    int a, b;
+    cin >> a >> b;
+    if (max(a, b) >= 10){
+        cout << -1 << endl;
+        return 0;
     }
-    for (auto v: a){
-        cout << v << " ";
+    if (min(a, b) < 1){
+        cout << -1 << endl;
+        return 0;
     }
-    cout << endl;
+    cout << a * b << endl;
     return 0;
 }

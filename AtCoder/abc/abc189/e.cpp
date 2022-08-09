@@ -1,99 +1,69 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define INF 1e18
-#define ll long long
 
-#pragma region dump
-#define repi(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
-// vector
-template <typename T>
-istream &operator>>(istream &is, vector<T> &vec) {
-    for (T &x : vec) is >> x;
-    return is;
-}
-// pair
-template <typename T, typename U>
-ostream &operator<<(ostream &os, const pair<T, U> &pair_var) {
-    os << "(" << pair_var.first << ", " << pair_var.second << ")";
-    return os;
-}
-// vector
-template <typename T>
-ostream &operator<<(ostream &os, const vector<T> &vec) {
-    os << "{";
-    for (int i = 0; i < (int)vec.size(); i++) {
-        os << "\033[0;30m[" << i << "]\033[0m" << vec[i] << (i + 1 == (int)vec.size() ? "" : ", ");
-    }
-    os << "}";
-    return os;
-}
-// map
-template <typename T, typename U>
-ostream &operator<<(ostream &os, map<T, U> &map_var) {
-    os << "{";
-    repi(itr, map_var) {
-        os << *itr;
-        itr++;
-        if (itr != map_var.end()) os << ", ";
-        itr--;
-    }
-    os << "}";
-    return os;
-}
-// set
-template <typename T>
-ostream &operator<<(ostream &os, set<T> &set_var) {
-    os << "{";
-    repi(itr, set_var) {
-        os << *itr;
-        itr++;
-        if (itr != set_var.end()) os << ", ";
-        itr--;
-    }
-    os << "}";
-    return os;
-}
-
-#define DUMPOUT cerr
-map<ll,ll> LINECOUNTER;
-
-void dump_func(string vas) {
-    (void)vas;
-    DUMPOUT << endl;
-}
-template <class Head, class... Tail>
-void dump_func(string vas, Head &&head, Tail &&... tail) {
-    string varname;
-    string rest;
-    vas.erase(remove(vas.begin(), vas.end(), ' '), vas.end());
-    if (sizeof...(Tail) > 0) {
-        varname = vas.substr(0, vas.find(","));
-        rest = vas.substr(vas.find(",")+1, vas.size());
-    } else {
-        varname = vas;
-    }
-    DUMPOUT << " \033[1m" << varname << "\033[0m " << ' ' << head;
-    if (sizeof...(Tail) > 0) {
-        DUMPOUT << endl << " ";
-    }
-    dump_func(vas.substr(vas.find(",")+1, vas.size()), std::move(tail)...);
-}
 #ifdef DEBUG_
-#define DEB
-#define dump(...)\
-    DUMPOUT << "\033[0;0;40m[" << LINECOUNTER[__LINE__] << ":" << to_string(__LINE__)\
-            << ":" << __FUNCTION__ << "]\033[0m"\
-            << " " << endl\
-            << " " ,\
-    LINECOUNTER[__LINE__]++;\
-    dump_func(#__VA_ARGS__,__VA_ARGS__)
+#include "../../onlinejudge/dump.cpp"
 #else
-#define DEB if (false)
 #define dump(...)
 #endif
-#pragma endregion dump
 
 int main(void) {
-
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    int n;
+    cin >> n;
+    vector<long long> x(n);
+    vector<long long> y(n);
+    for (int i = 0; i < n; i++){
+        cin >> x[i] >> y[i];
+    }
+    dump(x, y);
+    int m;
+    cin >> m;
+    vector<long long> u = {0, 0};
+    vector<long long> mx = {1, 0, 0, 1};
+    vector<vector<long long>> u_his;
+    vector<vector<long long>> mx_his;
+    u_his.push_back(u);
+    mx_his.push_back(mx);
+    dump(mx);
+    for(int i = 0; i < m; i++){
+        int t;
+        cin >> t;
+        if (t == 1){
+            u = {u[1], -u[0]};
+            mx = {mx[2], mx[3], -mx[0], -mx[1]};
+        }
+        if (t == 2){
+            u = {-u[1], u[0]};
+            mx = {-mx[2], -mx[3], mx[0], mx[1]};
+        }
+        if (t == 3){
+            long long p;
+            cin >> p;
+            u = {2 * p - u[0], u[1]};
+            mx = {-mx[0], -mx[1], mx[2], mx[3]};
+        }
+        if (t == 4){
+            long long p;
+            cin >> p;
+            u = {u[0], 2 * p - u[1]};
+            mx = {mx[0], mx[1], -mx[2], -mx[3]};
+        }
+        dump(mx, u);
+        u_his.push_back(u);
+        mx_his.push_back(mx);
+    }
+    int q;
+    cin >> q;
+    for (int i = 0; i < q; i++){
+        int a, b;
+        cin >> a >> b;
+        b--;
+        cout << u_his[a][0] + mx_his[a][0] * x[b] + mx_his[a][1] * y[b];
+        cout << " ";
+        cout << u_his[a][1] + mx_his[a][2] * x[b] + mx_his[a][3] * y[b];
+        cout << endl;
+    }
     return 0;
 }

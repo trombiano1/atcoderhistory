@@ -10,16 +10,10 @@ using namespace std;
 int main(void) {
     ios::sync_with_stdio(false);
     cin.tie(0);
-    int n;
-    cin >> n;
-    vector<int> a(n);
-    for (int i = 0; i < n; i++){
-        int p;
-        cin >> p;
-        a[p-1] = i+1;
-    }
-    for (auto v: a){
-        cout << v << " ";
+    vector<int> a(26);
+    for (int i = 0; i < 26; i++){
+        cin >> a[i];
+        cout << (char)(a[i]-1+'a');
     }
     cout << endl;
     return 0;

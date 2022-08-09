@@ -120,29 +120,93 @@ ostream &operator<<(ostream &os, const SegTree<T> &tree) {
     return os;
 }
 
-template <typename T>
-vector<T> compress(vector<T> &X) {
-    // ソートした結果を vals に
-    vector<T> vals = X;
-    sort(vals.begin(), vals.end());
-    // 隣り合う重複を削除(unique), 末端のゴミを削除(erase)
-    vals.erase(unique(vals.begin(), vals.end()), vals.end());
-    // 各要素ごとに二分探索で位置を求める
-    for (int i = 0; i < (int)X.size(); i++) {
-        X[i] = lower_bound(vals.begin(), vals.end(), X[i]) - vals.begin();
+template<int mod>
+struct modular {
+    long long val;
+    constexpr modular(long long v = 0) noexcept : val(v % mod) {
+        if (val < 0) val += mod;
     }
-    return vals;
+    constexpr int getmod() { return mod; }
+    constexpr modular operator - () const noexcept {
+        return val ? mod - val : 0;
+    }
+    constexpr modular operator + (const modular& r) const noexcept { return modular(*this) += r; }
+    constexpr modular operator - (const modular& r) const noexcept { return modular(*this) -= r; }
+    constexpr modular operator * (const modular& r) const noexcept { return modular(*this) *= r; }
+    constexpr modular operator / (const modular& r) const noexcept { return modular(*this) /= r; }
+    constexpr modular& operator += (const modular& r) noexcept {
+        val += r.val;
+        if (val >= mod) val -= mod;
+        return *this;
+    }
+    constexpr modular& operator -= (const modular& r) noexcept {
+        val -= r.val;
+        if (val < 0) val += mod;
+        return *this;
+    }
+    constexpr modular& operator *= (const modular& r) noexcept {
+        val = val * r.val % mod;
+        return *this;
+    }
+    constexpr modular& operator /= (const modular& r) noexcept {
+        long long a = r.val, b = mod, u = 1, v = 0;
+        while (b) {
+            long long t = a / b;
+            a -= t * b; swap(a, b);
+            u -= t * v; swap(u, v);
+        }
+        val = val * u % mod;
+        if (val < 0) val += mod;
+        return *this;
+    }
+    constexpr bool operator == (const modular& r) const noexcept {
+        return this->val == r.val;
+    }
+    constexpr bool operator != (const modular& r) const noexcept {
+        return this->val != r.val;
+    }
+    friend constexpr ostream& operator << (ostream &os, const modular<mod>& x) noexcept {
+        return os << x.val;
+    }
+    friend constexpr istream& operator >> (istream &is, modular<mod>& x) noexcept {
+        is >> x.val;
+        x.val %= mod;
+        if (x.val < 0) x.val += mod;
+        return is;
+    }
+};
+
+const int mod = 998244353;
+using mint = modular<mod>;
+
+// nCr % mod, n! % mod
+// to use fact[i], initialize first with C(max, 0);
+vector<mint> fact(1, 1);
+vector<mint> finv(1, 1);
+
+mint C(int n, int k) {
+    if (n < k || k < 0) {
+        return mint(0);
+    }
+    while ((int) fact.size() < n + 1) {
+        fact.emplace_back(fact.back() * (int) fact.size());
+        finv.emplace_back(mint(1) / fact.back());
+    }
+    return fact[n] * finv[k] * finv[n - k];
 }
 
-/* ex.
-vector<long long> a = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3}
-vector<long long> a_key;
-
-a_key = compress(a);
-
-a: {2, 0, 3, 0, 4, 6, 1, 5, 4, 2} // aが圧縮された値
-a_key: {1, 2, 3, 4, 5, 6, 9} // 元の数字を取り出したい時用(a_key[a[i]])
-*/
+// (a ^ n) % mod
+mint power(mint a, long long n) {
+    mint res = 1;
+    while (n > 0) {
+        if (n & 1) {
+            res *= a;
+        }
+        a *= a;
+        n >>= 1;
+    }
+    return res;
+}
 
 int main(void) {
     ios::sync_with_stdio(false);
@@ -159,36 +223,14 @@ int main(void) {
         cin >> x[i];
         x[i]--;
     }
-    vector<vector<long long>> c_c(n);
-    for (int i = 0; i < n; i++){
-        c_c[c[i]].push_back(x[i]);
-    }
-    dump(c_c);
-    for (auto &vec: c_c){
-        compress(vec);
-    }
-    dump(c_c);
-    SegTree<long long> tree(n, 0);
-    long long m0 = 0;
+    SegTree tree(n, 0);
+    mint m0 = 0;
     for (int i = 0; i < n; i++){
         dump(x[i]);
-        tree.update(x[i], tree.dat[(tree.size-1)/2+x[i]]+1);
-        m0 += tree.query(x[i]+1, n);
-        dump(tree, m0);
+        tree.update(x[i], 1);
+        m0 += tree.query(x[i], n+1);
+        dump(tree);
     }
     dump(m0);
-    for (auto vec: c_c){
-        long long res_ = 0;
-        if ((int)vec.size() < 2) continue;
-        SegTree tree1((int)vec.size(), 0);
-        for (int i = 0; i < (int)vec.size(); i++){
-            tree1.update(vec[i], tree1.dat[(tree1.size-1)/2+vec[i]]+1);
-            res_ += tree1.query(vec[i]+1, (int)vec.size());
-            dump(tree1);
-        }
-        m0 -= res_;
-        dump(vec, res_);
-    }
-    cout << m0 << endl;
     return 0;
 }
