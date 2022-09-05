@@ -1,125 +1,103 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define INF 1e18
-#define ll long long
 
-#pragma region dump
-#define repi(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
-// vector
-template <typename T>
-istream &operator>>(istream &is, vector<T> &vec) {
-    for (T &x : vec) is >> x;
-    return is;
-}
-// pair
-template <typename T, typename U>
-ostream &operator<<(ostream &os, const pair<T, U> &pair_var) {
-    os << "(" << pair_var.first << ", " << pair_var.second << ")";
-    return os;
-}
-// vector
-template <typename T>
-ostream &operator<<(ostream &os, const vector<T> &vec) {
-    os << "{";
-    for (int i = 0; i < (int)vec.size(); i++) {
-        os << "\033[0;30m[" << i << "]\033[0m" << vec[i] << (i + 1 == (int)vec.size() ? "" : ", ");
-    }
-    os << "}";
-    return os;
-}
-// queue
-template <typename T>
-ostream &operator<<(ostream &os, const queue<T> &que) {
-    os << "{";
-    queue<T> que_copy = que; ll i = 0;
-    while (!que_copy.empty()){
-        os << "\033[0;30m[" << i << "]\033[0m" << que_copy.front();
-        que_copy.pop(); i++;
-        if (!que_copy.empty()) os << ", ";
-    }
-    os << "}" << endl;
-    return os;
-}
-// priority_queue
-template <typename T, typename U, typename V>
-ostream &operator<<(ostream &os, const priority_queue<T, U, V> &que) {
-    os << "{";
-    priority_queue<T, U, V> que_copy = que; ll i = 0;
-    while (!que_copy.empty()){
-        os << "\033[0;30m[" << i << "]\033[0m" << que_copy.top();
-        que_copy.pop(); i++;
-        if (!que_copy.empty()) os << ", ";
-    }
-    os << "}" << endl;
-    return os;
-}
-// map
-template <typename T, typename U>
-ostream &operator<<(ostream &os, map<T, U> &map_var) {
-    os << "{";
-    repi(itr, map_var) {
-        os << *itr;
-        itr++;
-        if (itr != map_var.end()) os << ", ";
-        itr--;
-    }
-    os << "}";
-    return os;
-}
-// set
-template <typename T>
-ostream &operator<<(ostream &os, set<T> &set_var) {
-    os << "{";
-    repi(itr, set_var) {
-        os << *itr;
-        itr++;
-        if (itr != set_var.end()) os << ", ";
-        itr--;
-    }
-    os << "}";
-    return os;
-}
-
-#define DUMPOUT cerr
-map<ll,ll> LINECOUNTER;
-
-void dump_func(string vas) {
-    (void)vas;
-    DUMPOUT << endl;
-}
-template <class Head, class... Tail>
-void dump_func(string vas, Head &&head, Tail &&... tail) {
-    string varname;
-    string rest;
-    vas.erase(remove(vas.begin(), vas.end(), ' '), vas.end());
-    if (sizeof...(Tail) > 0) {
-        varname = vas.substr(0, vas.find(","));
-        rest = vas.substr(vas.find(",")+1, vas.size());
-    } else {
-        varname = vas;
-    }
-    DUMPOUT << " \033[1m" << varname << "\033[0m " << ' ' << head;
-    if (sizeof...(Tail) > 0) {
-        DUMPOUT << endl << " ";
-    }
-    dump_func(vas.substr(vas.find(",")+1, vas.size()), std::move(tail)...);
-}
 #ifdef DEBUG_
-#define DEB
-#define dump(...)\
-    DUMPOUT << "\033[0;0;40m[" << LINECOUNTER[__LINE__] << ":" << to_string(__LINE__)\
-            << ":" << __FUNCTION__ << "]\033[0m"\
-            << " " << endl\
-            << " " ,\
-    LINECOUNTER[__LINE__]++;\
-    dump_func(#__VA_ARGS__,__VA_ARGS__)
+#include "../../onlinejudge/dump.cpp"
 #else
-#define DEB if (false)
 #define dump(...)
 #endif
-#pragma endregion dump
+
+const int inf = 2e9;
 
 int main(void) {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    int h, w, n;
+    cin >> h >> w >> n;
+    int sx, sy, gx, gy;
+    cin >> sx >> sy >> gx >> gy;
+    sx--; sy--; gx--; gy--;
+    vector<map<int, vector<int>>> mp(2); // v, h
+    for (int k = 0; k < n; k++){
+        int i, j;
+        cin >> i >> j;
+        i--; j--;
+        mp[0][i].push_back(j); // h
+        mp[1][j].push_back(i); // v
+    }
+    for (int j = 0; j < 2; j++){
+        for (auto &i : mp[j]){
+            i.second.push_back(-inf);
+            i.second.push_back(inf);
+            sort(i.second.begin(), i.second.end());
+        }
+    }
+    dump(mp[0]);
+
+    // dijkstra
+    using P = pair<long long, pair<int, int>>;
+
+    // vector dist(n, inf);
+    map<pair<int, int>, long long> dist;
+    priority_queue<P, vector<P>, greater<P>> pque;
     
+    pair<int, int> start = {sx, sy}; // start point
+    dist[start] = 0;
+    pque.push({0, start});
+    
+    while (!pque.empty()) {
+        P p = pque.top();
+        pque.pop();
+        long long d = p.first; // dist (minなら確定)
+        auto v = p.second; // point (x, y)
+        int i = v.first;
+        int j = v.second;
+
+        dump(v);
+    
+        if (dist[v] < d && dist[v] != 0){
+            continue; // 最短以外は無視 else vは確定
+        }
+        // ここでreturn 0で出ても良い (見つからなかった場合の処理を忘れない)
+        if (v.first == gx && v.second == gy){
+            cout << dist[v] << endl;
+            return 0;
+        }
+        
+        vector<pair<int, int>> dest;
+        // v
+        // vertical
+        if ((int)mp[1][j].size() != 0){
+            dest.push_back({*prev(lower_bound(mp[1][j].begin(), mp[1][j].end(), i))+1, j});
+            dest.push_back({*lower_bound(mp[1][j].begin(), mp[1][j].end(), i)-1, j});
+        }
+        
+        // horizontal
+        if ((int)mp[0][i].size() != 0){
+            dest.push_back({i, *prev(lower_bound(mp[0][i].begin(), mp[0][i].end(), j))+1});
+            dest.push_back({i, *lower_bound(mp[0][i].begin(), mp[0][i].end(), j)-1});
+        }
+
+
+
+        for (auto nv : dest) { // vに繋がってる点が更新できれば候補に入れる
+            // dump(nv);
+            if (nv.first < 0 || nv.second < 0){
+                continue;
+            }
+            if (nv.first >= h || nv.second >= w){
+                continue;
+            }
+            if (nv == v){
+                continue;
+            }
+            if (dist[nv] > dist[v] + 1 || dist[nv] == 0) {
+                dist[nv] = dist[v] + 1;
+                pque.push({dist[nv], nv});
+            }
+        }
+    }
+    // dump(dist);
+    cout << -1 << endl;
     return 0;
 }

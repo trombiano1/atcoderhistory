@@ -1,88 +1,67 @@
-#include <bits/stdc++.h>
-
+#include<bits/stdc++.h>
+#include<atcoder/all>
 using namespace std;
+using namespace atcoder;
+#define rep(i,l,r)for(int i=(l);i<(r);i++)
 
-#define INF 1e18
-#define ll long long
-#define repi(itr, ds) for (auto itr = ds.begin(); itr != ds.end(); itr++)
+int main(){
+	int n,m;
+	cin >> n >> m;
+	vector<int>d(n);
+	rep(i,0,n)cin >> d[i];
 
-#pragma region dump
-// vector
-template <typename T>
-istream &operator>>(istream &is, vector<T> &vec) {
-    for (T &x : vec) is >> x;
-    return is;
-}
-// pair
-template <typename T, typename U>
-ostream &operator<<(ostream &os, pair<T, U> &pair_var) {
-    os << "(" << pair_var.first << ", " << pair_var.second << ")";
-    return os;
-}
-// vector
-template <typename T>
-ostream &operator<<(ostream &os, const vector<T> &vec) {
-    os << "{";
-    for (int i = 0; i < (int)vec.size(); i++) {
-        os << vec[i] << (i + 1 == (int)vec.size() ? "" : ", ");
-    }
-    os << "}";
-    return os;
-}
-// map
-template <typename T, typename U>
-ostream &operator<<(ostream &os, map<T, U> &map_var) {
-    os << "{";
-    repi(itr, map_var) {
-        os << *itr;
-        itr++;
-        if (itr != map_var.end()) os << ", ";
-        itr--;
-    }
-    os << "}";
-    return os;
-}
-// set
-template <typename T>
-ostream &operator<<(ostream &os, set<T> &set_var) {
-    os << "{";
-    repi(itr, set_var) {
-        os << *itr;
-        itr++;
-        if (itr != set_var.end()) os << ", ";
-        itr--;
-    }
-    os << "}";
-    return os;
-}
+	dsu dsu(n);
+	rep(i,0,m){
+		int x,y;
+		cin >> x >> y;
+		x--,y--;
+		d[x]--,d[y]--;
+		dsu.merge(x,y);
+	}
 
-#define DUMPOUT cerr
-
-void dump_func() {
-    DUMPOUT << endl;
-}
-template <class Head, class... Tail>
-void dump_func(Head &&head, Tail &&... tail) {
-    DUMPOUT << head;
-    if (sizeof...(Tail) > 0) {
-        DUMPOUT << ", ";
-    }
-    dump_func(std::move(tail)...);
-}
-#ifdef DEBUG_
-#define DEB
-#define dump(...)                                                              \
-    DUMPOUT << "  \033[1m" << string(#__VA_ARGS__) << "\033[0m: "                            \
-            << "\033[0;90m[" << to_string(__LINE__) << ":" << __FUNCTION__ << "]\033[0m"        \
-            << endl                                                            \
-            << "    " ,                                                         \
-        dump_func(__VA_ARGS__)
-#else
-#define DEB if (false)
-#define dump(...)
-#endif
-#pragma endregion dump
-
-int main(void) {
-    return 0;
+	vector<vector<int>>temp(n);
+	rep(i,0,n){
+		if(d[i]<0){
+			cout << -1;
+			return 0;
+		}
+		rep(_,0,d[i])temp[dsu.leader(i)].push_back(i);
+	}
+	
+	vector<vector<int>>c2;
+	vector<int>c1;
+	rep(i,0,n){
+		if(temp[i].size()==1)c1.push_back(temp[i][0]);
+		else if(temp[i].size()>1) c2.push_back(temp[i]);
+	}
+	
+	vector<pair<int,int>>ans;
+	for(auto v:c2){
+		for(int i=0;i<(int)v.size()-1;i++){
+			if(c1.empty()){
+				cout << -1;
+				return 0;
+			}
+			dsu.merge(v[i],c1.back());
+			ans.push_back({v[i],c1.back()});
+			c1.pop_back();
+		}
+		c1.push_back(v.back());
+	}
+	
+	if(c1.size()!=2){
+		cout << -1;
+		return 0;
+	}
+	dsu.merge(c1[0],c1[1]);
+	ans.push_back({c1[0],c1[1]});
+	
+	if(dsu.size(0)!=n){
+		cout << -1;
+		return 0;
+	}
+	
+	for(auto[p,q]:ans){
+		cout << p+1 << ' ' << q+1 << endl;
+	}
 }

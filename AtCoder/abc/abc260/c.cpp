@@ -1,17 +1,12 @@
-#include <bits/stdc++.h>
+#include <iostream>
 using namespace std;
-#define ll long long
-#define INF 1e9
-#define LINF 100000000000000000LL
-#define all(x) begin(x), end(x)
-
-#ifdef DEBUG_
-#include "../../onlinejudge/dump.cpp"
-#else
-#define dump(...)
-#endif
-
-int main(void) {
-    
-    return 0;
+long long N, X, Y, r[12], b[12];
+int main() {
+  cin >> N >> X >> Y;
+  r[1] = 0, b[1] = 1;
+  for (int n = 2; n <= N; n++) {
+    b[n] = r[n - 1] + b[n - 1] * Y;
+    r[n] = r[n - 1] + b[n] * X;
+  }
+  cout << r[N] << "\n";
 }
