@@ -14,6 +14,7 @@ using namespace std;
     - まとめたDPを用いて新たな部分木のDPを計算する add_root
     計算量: O(N)
 */
+
 struct rerooting {
     /* start 問題ごとに書き換え */
     struct DP {  // DP の型

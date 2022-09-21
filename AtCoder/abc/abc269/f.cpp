@@ -76,7 +76,7 @@ istream& operator>>(istream& stream, modular<mod>& x) {
     return stream;
 }
  
-constexpr long long mod = 1000000007;
+constexpr long long mod = 998244353;
 using mint = modular<mod>;
 
 // nCr % mod, n! % mod
@@ -108,66 +108,53 @@ mint power(mint a, long long n) {
     return res;
 }
 
-vector<long long> enum_divisors(long long N) {
-    vector<long long> res;
-    for (long long i = 1; i * i <= N; ++i) {
-        if (N % i == 0) {
-            res.push_back(i);
-            // 重複しないならば i の相方である N/i も push
-            if (N/i != i) res.push_back(N/i);
-        }
-    }
-    // 小さい順に並び替える
-    sort(res.begin(), res.end());
-    return res;
-}
-
 int main(void) {
     ios::sync_with_stdio(false);
     cin.tie(0);
-    int n;
-    cin >> n;
-    vector<long long> a(n);
-    vector<long long> r_sum(n);
-    for (int i = 0; i < n; i++) {
-        cin >> a[i];
-    }
-    r_sum[0] = a[0];
-    for (int i = 1; i < n; i++) {
-        r_sum[i] = r_sum[i - 1] + a[i];
-    }
-    dump(r_sum);
-
-    vector x(n, vector<int>(n, -1));
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < i; j++) {
-            auto divs = enum_divisors(r_sum[i] - r_sum[j]);
-            dump(divs);
-            // x[i][r_sum[i] - r_sum[j]] = j;
-            for (auto d : divs){
-                if (d < n){
-                    x[i][d] = j;
-                }
+    mint n, m;
+    cin >> n >> m;
+    int q;
+    cin >> q;
+    for (int i = 0; i < q; i++) {
+        int a, b, c, d;
+        cin >> a >> b >> c >> d;
+        a--; b--; c--; d--;
+        // dump(a, b, c, d);
+        auto Solve = [&](int x, int y){
+            // dump(x, y);
+            if (x < 0 || y < 0) {
+                return (mint) 0;
             }
-        }
-    }
-    dump(x);
-
-    vector dp(n, vector<mint>(n + 1));
-    dp[0][0] = 1;
-    dp[1][0] = 1;
-    for (int i = 0; i < n + 1; i++) {
-        for (int j = 1; j < i; j++) {
-            if (x[i][j] >= 0) {
-                dp[i][j] += dp[x[i][j]][j] + dp[x[i][j]][j - 1];
+            mint ans = 0;
+            // 偶数
+            mint X = x / 2 + 1;
+            mint Y = y / 2 + 1;
+            // yump(X, Y);
+            ans += Y * X * (X - 1) * m + X * Y + Y * (Y - 1) * X;
+            // dump(ans, X, Y, m, "1");
+            
+            // 奇数
+            int X_ = x / 2 + 1;
+            int Y_ = y / 2 + 1;
+            // dump(Y_);
+            if (2 * X_ - 1 > x) {
+                X_--;
             }
-        }
+            if (2 * Y_ - 1 > y) {
+                Y_--;
+            }
+            // dump(X_, Y_);
+            X = (mint) X_;
+            Y = (mint) Y_;
+            ans += Y * X * (X - 1) * m + X * Y + Y * (Y - 1) * X + m * X * Y + X * Y;
+            // dump(ans);
+            return ans;
+        };
+        cout << Solve(b, d) - Solve(a - 1, d) - Solve(b, c - 1) + Solve(a - 1, c - 1) << endl;
+        
+        dump(Solve(a - 1, d));
+        dump(Solve(c - 1, b));
+        dump(Solve(a - 1, c - 1));
     }
-    mint ans = 0;
-    for (int i = 0; i < n + 1; i++) {
-        ans += dp[n - 1][i];
-    }
-    dump(dp);
-    cout << ans << endl;
     return 0;
 }
